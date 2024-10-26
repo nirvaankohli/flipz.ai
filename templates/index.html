@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Try It</title>
+  
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+  <link rel="icon" type="image/x-icon" href="static\images\favicon.ico">
+</head>
+<body>
+    
+  
+    <header>
+        <div style="width:80%;" class = container>
+            <nav>
+                <ul>
+                <li><strong>Cardinalis.ai</strong></li>
+                </ul>
+                <ul>
+                <li><a href="/">Try It</a></li>
+                <li><a href="/settings">⚙️</a></li>
+
+                </ul>
+            </nav>
+
+        </div>
+    </header>
+    <main>
+        <div style="width:50%;" class = container>
+            
+            <form action = "#" method = "post">
+                <label>
+                    Topic
+                    <input
+                    name="topic"
+                    placeholder="Enter your topic"
+                    autocomplete="given-name"
+                    />
+                </label>
+                <label>Grade Level</label>
+                <select name="grade" aria-label="Select your grade level" required>
+                    <option selected disabled value="">
+                        Select your grade level
+                    </option>
+                    <option>K</option>
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                    <option>11</option>
+                    <option>12</option>
+                    <option>Adult</option>
+                </select>
+
+            
+            <input
+            type="submit"
+            value="Generate ✨"
+            />
+        </form>
+    </div>
+    </main>
+</body>
+</html>
