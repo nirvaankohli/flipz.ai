@@ -4,13 +4,16 @@ import time
 import json
 from threading import Thread
 import os
+from dotenv import load_dotenv
+import os
 
-#hi
+load_dotenv()
+
+key = os.getenv("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")
 
 app = Flask(__name__)
 
-key = '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'
-app.secret_key = 'hi'
+app.secret_key = key
 
 api = CardinalisAPI.API(key)
 global result
