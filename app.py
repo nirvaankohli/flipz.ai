@@ -24,8 +24,7 @@ def generate_flashcards(topic, grade_level):
 
 
     flashcards = api.flashcards(topic, grade_level)
-
-
+    #hi
     #session['task_status'] = True
     task_status = True
     global result
