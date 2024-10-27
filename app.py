@@ -9,7 +9,7 @@ import os
 
 load_dotenv()
 
-key = os.getenv("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")
+key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 
