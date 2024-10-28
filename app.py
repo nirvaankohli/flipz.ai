@@ -67,14 +67,12 @@ def loading():
     thread.start()
 
 
-    print("i am redirecting to the cool loading")
     return redirect(url_for('loading_cards'))
     
 @app.route('/loading_cards', methods=['GET', 'POST'])
 
 def loading_cards():
 
-    print("i am in the cool loading")
 
     return render_template('generation.html')
     
@@ -90,8 +88,6 @@ def flashcards():
     grade_level = session['generation']['grade']
 
     data = json.loads((result['choices'][0]['message']['content']))
-    print(type(data))
-    print(data)
     questions = data["questions"]
     answers = data["answers"]
     
