@@ -11,7 +11,7 @@ import os
 
 load_dotenv()
 
-key = os.getenv("")
+key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 
