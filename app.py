@@ -11,10 +11,10 @@ import os
 
 load_dotenv()
 
-key = os.getenv("OPENAI_API_KEY")
-
+key = os.getenv("")
 
 app = Flask(__name__)
+
 
 app.secret_key = key
 
