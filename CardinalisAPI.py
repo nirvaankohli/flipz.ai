@@ -19,6 +19,7 @@ class FormatStudyGuide(BaseModel):
 class API:
 
     def __init__(self, key):
+
         from dotenv import load_dotenv
 
         load_dotenv()
