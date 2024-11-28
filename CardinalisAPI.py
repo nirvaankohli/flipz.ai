@@ -109,5 +109,3 @@ class API:
 
         None
 
-if __name__ == '__main__':
-    API()
