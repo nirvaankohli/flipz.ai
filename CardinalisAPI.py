@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import os
 import openai
 
+
 class Format(BaseModel):
     questions: list[str]
     answers: list[str]
