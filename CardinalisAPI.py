@@ -19,7 +19,13 @@ class FormatStudyGuide(BaseModel):
 class API:
 
     def __init__(self, key):
+
+        from dotenv import load_dotenv
+
+        load_dotenv()
+
         self.key = os.getenv("OPENAI_API_KEY")
+
         if not self.key:
             raise ValueError("OPENAI_API_KEY environment variable not set")
         self.activate()
