@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Viewer</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400&display=swap" />
+    
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+        body {
+            font-family: Poppins,serif;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 120vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            flex-direction: column;
+        }
+        .flashcard-container {
+            text-align: center;
+            position: relative;
+        }
+        .flashcard {
+            background-color: #fff;
+            border-radius: 1.25vw;
+            box-shadow: 0 0.2vw 0.4vw rgba(0,0,0,0.2);
+            padding: 1vw;
+            width: 38.75vw;
+            min-height: 200px;
+            height: 20vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
+            transform-style: preserve-3d;
+            position: relative;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backface-visibility: hidden;
+            border-radius: 0.5vw;
+        }
+        .front {
+            transform: rotateY(0deg);
+        }
+        .back {
+            transform: rotateY(180deg);
+        }
+        
+        .arrow {
+            width: 5vw;
+            height: 5vw;
+            color: white;
+            border: none;
+            padding: 0;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            background: linear-gradient(113.1deg, #FF5F1F, rgb(253, 75, 101) 80.5%, rgb(255, 53, 109) 100.6%);
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 3s infinite;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .arrow:hover {
+            background-color: #FF5F1F;
+        }
+
+        .arrow-icon {
+            font-size: 2vw;
+        }
+
+        #prevBtn {
+            left: -7.5vw;
+        }
+        #nextBtn {
+            right: -7.5vw;
+        }
+
+        .progress-bar {
+            width: 40vw;
+            height: 1vw;
+            background-color: #e0e0e0;
+            border-radius: 0.5vw;
+            margin-top: 1vw;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(113.1deg, #FF5F1F, rgb(253, 75, 101) 80.5%, rgb(255, 53, 109) 100.6%);
+            width: 0;
+            transition: width 0.6s ease-in-out;
+        }
+
+        .top-menu {
+            
+            display: flex;
+            gap: 1vw;
+            margin-bottom: -6.5vw;
+            width: 40.5vw;
+        }
+        .menu-button {
+            flex: 1;
+            background: white;
+            padding: 1vw;
+            border-radius: 0.75vw;
+            box-shadow: 0 0.2vw 0.4vw rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            font-weight: bold;
+            font-size: 1.2vw;
+            color: #FF5F1F;
+            height: 3vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .menu-button:hover {
+            background-color: #FF5F1F;
+            color: #ffffff;
+        }
+
+        .bottom-controls {
+            display: flex;
+            gap: 1vw;
+            margin-top: -5vw;
+        }
+        .control-button {
+            width: 3vw;
+            height: 3vw;
+            background-color: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0.2vw 0.4vw rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .control-button:hover {
+            background-color: #f0f0f0;
+        }
+        .control-icon {
+            font-size: 1.5vw;
+            color: #FF5F1F;
+        }
+
+        @media (min-width: 1500px) and (max-width: 1920px) {
+            .card-face {
+                font-size: 2vw;
+            }
+        }
+        @media (min-width: 800px) and (max-width: 1499px) {
+            .card-face {
+                font-size: 3vw;
+            }
+        }
+        @media (min-width: 0px) and (max-width: 799px) {
+            .card-face {
+                font-size:4vw;
+            }
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-menu" style="margin-top: 10vw;">
+        <div class="menu-button"><span class="material-symbols-outlined arrow-icon">note_stack</span> Flashcards</div>
+        <div class="menu-button"><span class="material-symbols-outlined arrow-icon">article</span> Study Guide</div>
+        <div class="menu-button"><span class="material-symbols-outlined arrow-icon">quiz</span> Test</div>
+    </div>
+    <div class="flashcard-container" style="margin-top: 8vw;">
+        <button class="arrow" id="prevBtn" aria-label="Previous Card">
+            <span class="material-symbols-outlined arrow-icon">arrow_back_ios</span>
+        </button>
+        <div class="flashcard" id="flashcard">
+            <div class="card-face front" id="front">Front of Card 1</div>
+            <div class="card-face back" id="back">Back of Card 1</div>
+        </div>
+        <button class="arrow" id="nextBtn" aria-label="Next Card">
+            <span class="material-symbols-outlined arrow-icon">arrow_forward_ios</span>
+        </button>
+    </div>
+    <div class="progress-bar" style="margin-top: 2vw;">
+        <div class="progress-bar-fill" id="progressBarFill"></div>
+    </div>
+    <div class="bottom-controls" style="margin-top: 2vw;">
+        <div class="control-button" id="playBtn" aria-label="Play Shuffle">
+            <span class="material-symbols-outlined control-icon">shuffle</span>
+        </div>
+        <div class="control-button" id="fullscreenBtn" aria-label="Fullscreen">
+            <span class="material-symbols-outlined control-icon">fullscreen</span>
+        </div>
+        <div class="control-button" id="settingsBtn" aria-label="Settings">
+            <span class="material-symbols-outlined control-icon">settings</span>
+        </div>
+    </div>
+    <script>
+        const flashcards = {{ placeholder | safe }};
+
+        let currentIndex = 0;
+        const flashcard = document.getElementById("flashcard");
+        const front = document.getElementById("front");
+        const back = document.getElementById("back");
+        const progressBarFill = document.getElementById("progressBarFill");
+
+        function updateFlashcard() {
+            flashcard.style.opacity = 0;
+            setTimeout(() => {
+                front.textContent = flashcards[currentIndex].front;
+                back.textContent = flashcards[currentIndex].back;
+                flashcard.style.opacity = 1;
+                flashcard.classList.remove("flipped");
+                flashcard.classList.add("fadeIn");
+                updateProgressBar();
+            }, 600);
+
+            // Disable buttons when at start or end
+            document.getElementById("prevBtn").disabled = currentIndex === 0;
+            document.getElementById("nextBtn").disabled = currentIndex === flashcards.length - 1;
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentIndex + 1) / flashcards.length) * 100;
+            progressBarFill.style.width = progress + "%";
+        }
+
+        document.getElementById("prevBtn").addEventListener("click", (event) => {
+            event.stopPropagation();
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateFlashcard();
+            }
+        });
+
+        document.getElementById("nextBtn").addEventListener("click", (event) => {
+            event.stopPropagation();
+            if (currentIndex < flashcards.length - 1) {
+                currentIndex++;
+                updateFlashcard();
+            }
+        });
+
+        flashcard.addEventListener("click", () => {
+            flashcard.classList.toggle("flipped");
+        });
+
+        updateFlashcard();
+    </script>
+</body>
+</html>

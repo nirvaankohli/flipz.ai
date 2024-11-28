@@ -1,109 +1,131 @@
-from flask import Flask, render_template, redirect, url_for, session, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_from_directory, make_response
+import threading
+import uuid
 import CardinalisAPI
-import time
 import json
-from threading import Thread
 import os
+import time
+
 from dotenv import load_dotenv
-import os
-
-
 
 load_dotenv()
 
 key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
-
-
 app.secret_key = key
-
+user_id = None
 api = CardinalisAPI.API(key)
-global result
-from flask import url_for
 
-def generate_flashcards(topic, grade_level):
+form_data = {}
+outcome = 'None'
+result = 'None'
+tasks = {}
+task_status = "Not Started"
 
-    global task_status 
-    task_status= False
-    #session['task_status'] = False
+def api_call(topic, level, user_id, task_id):
+    global task_status
+    global outcome
+    try:
+        tasks[user_id + str(task_id)] = ['in progress', 'None']
 
 
-    flashcards = api.flashcards(topic, grade_level)
-    
-    #session['task_status'] = True
-    task_status = True
-    global result
+        result = api.flashcards(topic, level)
+        outcome = result
+        print('success')
 
-    result = flashcards
+        tasks[user_id + str(task_id)] = ['completed', result]
 
-    #return flashcards, task_status
+        return 
+        
+        
+    except Exception as e:
+
+        task_status = f"Failed for task {task_id}: {str(e)}"
 
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
-                          'favicon.ico',mimetype='image/vnd.microsoft.icon')
+                          'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/', methods=['GET', 'POST'])
-
-def index():
+def home():
+    global user_id
     if request.method == 'POST':
-        topic = request.form['topic']
-        grade_level = request.form['grade']
-
-        session['generation'] = {'topic': topic, 'grade': grade_level}
+        import secrets
+        form_data = {}
+        form_data['topic'] = request.form['topic']
+        form_data['level'] = request.form['level']
+        form_data['user_id'] = request.cookies.get('user_id')
+        form_data['task_id'] = secrets.token_hex(5)
         
-        return redirect(url_for('loading'))
+        # Start the API call in a background thread with arguments
+        background_thread = threading.Thread(target=api_call, args=(form_data['topic'], form_data['level'], form_data['user_id'], form_data['task_id']))
+        background_thread.start()
+        
+        return redirect(url_for('loading_cards', task_id=form_data['task_id']))
         
     else:
-        return render_template('index.html')
+        user_id = request.cookies.get('user_id')
+        if not user_id:
+            user_id = str(uuid.uuid4())
+        
+        response = make_response(render_template('home.html'))
+        response.set_cookie('user_id', user_id, max_age=60*60*24*30*12)  
+        return response
 
 
-@app.route('/loading', methods=['GET', 'POST'])
-
-def loading():
-
-    thread = Thread(target=generate_flashcards, args=(session['generation']['topic'], session['generation']['grade']))
-    thread.start()
-
-
-    return redirect(url_for('loading_cards'))
-    
 @app.route('/loading_cards', methods=['GET', 'POST'])
-
 def loading_cards():
+    global user_id
+    if user_id is None:
+        user_id = request.cookies.get('user_id')
+        if not user_id:
+            user_id = str(uuid.uuid4())
+
+    task_id = request.args.get('task_id')
+    return render_template('generation.html', task_id=task_id)
 
 
-    return render_template('generation.html')
-    
-@app.route('/check_status', methods=['GET', 'POST'])
-
+@app.route('/check_status', methods=['GET'])
 def check_status():
-    return str(task_status)
+    user_id = request.cookies.get('user_id')
+    task_id = request.args.get('task_id')
+    if user_id and task_id and (user_id + str(task_id)) in tasks:
 
-@app.route('/flashcards', methods=['GET', 'POST'])
-def flashcards():
-
-    topic = session['generation']['topic']
-    grade_level = session['generation']['grade']
-
-    data = json.loads((result['choices'][0]['message']['content']))
-    questions = data["questions"]
-    answers = data["answers"]
+        status, result = tasks[user_id + str(task_id)]
+        return jsonify({"status": status, "result": result})
     
-    accordians = []
+    return jsonify({"status": "unknown"})
 
-    
+@app.route('/show_result', methods=['GET'])
+def show_result():
 
-    if len(questions) == len(answers):
-        for i in range(len(questions)):
+    user_id = request.cookies.get('user_id')
+    task_id = request.args.get('task_id')
 
-            accordians.append({"front": questions[i], "back": answers[i]})
-           
+    if user_id and task_id and (user_id + str(task_id)) in tasks:
 
-    return render_template('flashcardinfo.html', flashcard_cool_info = accordians)
+        status = tasks[user_id + str(task_id)][0]
 
+        flashcards_i = json.loads(outcome)['terms']
+        flashcards = "["
+        for i in flashcards_i:
+            add =  str('{front: "i["term"]", back: "i["answer"]"},').replace('i["term"]', i['term']).replace('i["answer"]', i['answer'])
+            flashcards += add
+        flashcards = flashcards[:-1]
+        flashcards += "]"
+
+
+
+
+        if status == 'completed':
+
+            return render_template('result.html', placeholder = flashcards)
+    return redirect(url_for('home'))
 
 if __name__ == '__main__':
-    app.run(debug=True, port = 0000)
+
+    app.run(debug=True, threaded=True) 
+
 
