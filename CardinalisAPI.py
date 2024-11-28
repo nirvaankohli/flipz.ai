@@ -26,10 +26,6 @@ class API:
 
         self.key = os.getenv("OPENAI_API_KEY")
 
-        if not self.key:
-            raise ValueError("OPENAI_API_KEY environment variable not set")
-        self.activate()
-
         self.model = 'gpt-4o-mini-2024-07-18'
         self.activate()
 
