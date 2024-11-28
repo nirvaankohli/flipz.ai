@@ -1,7 +1,7 @@
 
 from pydantic import BaseModel
-
-
+import os
+import openai
 
 class Format(BaseModel):
     questions: list[str]
@@ -18,14 +18,18 @@ class FormatStudyGuide(BaseModel):
 class API:
 
     def __init__(self, key):
-        self.key = key
+        self.key = os.getenv("OPENAI_API_KEY")
+        if not self.key:
+            raise ValueError("OPENAI_API_KEY environment variable not set")
+        self.activate()
+
         self.model = 'gpt-4o-mini-2024-07-18'
         self.activate()
 
     def activate(self):
 
-        from openai import OpenAI
-        self.client = OpenAI(api_key=self.key)
+
+        self.client = openai.OpenAI(api_key=self.key)
 
     def get_key(self):
         return self.key
