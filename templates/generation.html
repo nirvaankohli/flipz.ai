@@ -284,13 +284,15 @@
 
         
     const taskId = "{{ task_id }}";
-    
+
     function checkStatus() {
         fetch(`/check_status?task_id=${taskId}`)
+            console.log("I did it in stuff")
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'completed') {
                     // Redirect to the home route
+                    console.log("It goes in here")
                     window.location.href = `/show_result?task_id=${taskId}`;
                 } else {
 
