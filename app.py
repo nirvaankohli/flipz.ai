@@ -118,10 +118,7 @@ def show_result():
 
 
 
-
-        if status == 'completed':
-
-            return render_template('result.html', placeholder = flashcards)
+        return render_template('result.html', placeholder = flashcards)
     return redirect(url_for('home'))
 
 if __name__ == '__main__':
