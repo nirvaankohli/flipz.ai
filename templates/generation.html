@@ -284,7 +284,7 @@
 
         
     const taskId = "{{ task_id }}";
-
+    
     function checkStatus() {
         fetch(`/check_status?task_id=${taskId}`)
             .then(response => response.json())
@@ -292,11 +292,8 @@
                 if (data.status === 'completed') {
                     // Redirect to the home route
                     window.location.href = `/show_result?task_id=${taskId}`;
-                } else if (data.redirect) {
-                    // Handle other redirects if specified
-                    window.location.href = data.redirect;
-                } else if (data.status) {
-                    console.log("Task Status:", data.status);
+                } else {
+
                 }
             })
             .catch(error => console.error("Error checking status:", error));
@@ -326,5 +323,6 @@
             </div>
         </div>
     </div>
+    <p class = "hi">hi</p>
 </body>
 </html>
