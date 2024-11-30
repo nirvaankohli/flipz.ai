@@ -288,17 +288,23 @@
     const taskId = "{{ taskId }}";
 
     function checkStatus() {
+        console.log("Checking task status...");
         fetch(`/check_status?task_id=${taskId}`)
             .then(response => response.json())
             .then(data => {
+                console.log("API Response:", data);
                 if (data.status === "completed") {
-                    window.location.replace("/show_result?task_id={{taskId }}");
+                    console.log("Redirecting to /show_result...");
+                    window.location.replace(`/show_result?task_id=${taskId}`);
+                } else {
+                    console.log("Task status is not completed yet.");
                 }
             })
-            .catch(error => console.error('gygyuvuyvutvukv:', error));
+            .catch(error => {
+                console.error("Error fetching task status:", error);
+                alert("An error occurred while checking the task status.");
+            });
     }
-
-    setInterval(checkStatus, 2000); 
 
 
 });
