@@ -292,7 +292,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === "completed") {
-                    window.location.href = `/show_result?task_id=${taskId}`;
+                    window.location.replace("/show_result?task_id={{taskId }}");
                 }
             })
             .catch(error => console.error('gygyuvuyvutvukv:', error));
