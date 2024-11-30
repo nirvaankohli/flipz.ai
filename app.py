@@ -91,7 +91,7 @@ def loading_cards():
 def check_status():
     user_id = request.cookies.get('user_id')
     task_id = request.args.get('task_id')
-    if user_id and task_id and (user_id + str(task_id)) in tasks:
+    if (user_id + str(task_id)) in tasks.keys():
 
         status, result = tasks[user_id + str(task_id)]
         return jsonify({"status": status, "result": result})
