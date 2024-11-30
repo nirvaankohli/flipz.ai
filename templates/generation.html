@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Loading</title>
+  <meta http-equiv="Cache-control" content="public">
+
   <link rel="icon" type="image/x-icon" href="C:\Users\nirva\OneDrive\srry\static\images\snapstudy_favicon_transparent.ico">
 
 <!-- <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"> -->
@@ -283,25 +285,22 @@
     document.addEventListener("DOMContentLoaded", function() {
 
         
-    const taskId = "{{ task_id }}";
+    const taskId = "{{ taskId }}";
 
     function checkStatus() {
         fetch(`/check_status?task_id=${taskId}`)
-            console.log("I did it in stuff")
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'completed') {
-                    // Redirect to the home route
-                    console.log("It goes in here")
+                if (data.status === "completed") {
                     window.location.href = `/show_result?task_id=${taskId}`;
-                } else {
-
                 }
             })
-            .catch(error => console.error("Error checking status:", error));
+            .catch(error => console.error('Error:', error));
     }
 
-    setInterval(checkStatus, 1000);
+    setInterval(checkStatus, 2000); 
+
+
 });
 </script>
 
