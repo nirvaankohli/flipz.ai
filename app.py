@@ -108,8 +108,8 @@ def show_result():
     
     try:
         status = tasks[user_id + str(task_id)][0]
-    except:
-        return "f"
+    except Exception as e:
+        return f"{user_id + str(task_id)} /n {e}"
     try:
         flashcards_i = json.loads(outcome)['terms']
         flashcards = "["
