@@ -41,7 +41,7 @@ def api_call(topic, level, user_id, task_id):
         
     except Exception as e:
 
-        task_status = f"Failed for task {task_id}: {str(e)}"
+        tasks[user_id + str(task_id)] = ["not working",f"Failed for task {task_id}: {str(e)}"]
 
 @app.route('/favicon.ico')
 def favicon():
