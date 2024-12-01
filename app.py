@@ -96,8 +96,11 @@ def check_status():
 
         status, result = tasks[user_id + str(task_id)]
         return jsonify({"status": status, "result": result})
-    
-    return jsonify({"status": "unknown"})
+    try:
+        status, result = tasks[user_id + str(task_id)]
+        return jsonify({"status": status, "result": result})
+    except Exception as e:
+        return jsonify({"status": "can not be found", "result": e})
 
 @app.route('/show_result', methods=['GET'])
 def show_result():
