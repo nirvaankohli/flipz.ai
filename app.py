@@ -106,16 +106,21 @@ def show_result():
     task_id = request.args.get('task_id')
 
     
-
-    status = tasks[user_id + str(task_id)][0]
-
-    flashcards_i = json.loads(outcome)['terms']
-    flashcards = "["
-    for i in flashcards_i:
-         add =  str('{front: "i["term"]", back: "i["answer"]"},').replace('i["term"]', i['term']).replace('i["answer"]', i['answer'])
-         flashcards += add
-    flashcards = flashcards[:-1]
-    flashcards += "]"
+    try:
+        status = tasks[user_id + str(task_id)][0]
+    except:
+        return "f"
+    try:
+        flashcards_i = json.loads(outcome)['terms']
+        flashcards = "["
+        for i in flashcards_i:
+            add =  str('{front: "i["term"]", back: "i["answer"]"},').replace('i["term"]', i['term']).replace('i["answer"]', i['answer'])
+            flashcards += add
+        flashcards = flashcards[:-1]
+        flashcards += "]"
+    except:
+        return "g"
+    
 
 
 
@@ -124,7 +129,7 @@ def show_result():
 
         return render_template('result.html', placeholder = flashcards)
     else:
-        return "f"
+        return "h"
 
 if __name__ == '__main__':
 
