@@ -98,9 +98,10 @@ def check_status():
         return jsonify({"status": status, "result": result})
     try:
         status, result = tasks[user_id + str(task_id)]
-        return jsonify({"status": status, "result": result})
+        
     except Exception as e:
-        return jsonify({"status": "can not be found", "result": e})
+        status, result = "can not be found", str(e)
+    return jsonify({"status": status, "result": result})
 
 @app.route('/show_result', methods=['GET'])
 def show_result():
@@ -112,7 +113,7 @@ def show_result():
     try:
         status = tasks[user_id + str(task_id)][0]
     except Exception as e:
-        return f"{user_id + str(task_id)} /n {e}"
+        return f"{user_id + str(task_id)} /n {str(e)}"
     try:
         flashcards_i = json.loads(outcome)['terms']
         flashcards = "["
