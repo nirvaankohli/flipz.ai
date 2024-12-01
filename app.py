@@ -50,6 +50,7 @@ def favicon():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    #this works
     global user_id
     if request.method == 'POST':
         import secrets
