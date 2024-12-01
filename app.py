@@ -50,6 +50,7 @@ def favicon():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    #this works
     global user_id
     if request.method == 'POST':
         import secrets
@@ -91,12 +92,10 @@ def loading_cards():
 def check_status():
     user_id = request.cookies.get('user_id')
     task_id = request.args.get('task_id')
-    if (user_id + str(task_id)) in tasks.keys():
+    if user_id and task_id and (user_id + str(task_id)) in tasks:
 
         status, result = tasks[user_id + str(task_id)]
         return jsonify({"status": status, "result": result})
-    if not (user_id and task_id and (user_id + str(task_id)) in tasks):
-        return jsonify({"status": "failed", "result": "Task not found or invalid"})
     
     return jsonify({"status": "unknown"})
 
@@ -106,14 +105,11 @@ def show_result():
     user_id = request.cookies.get('user_id')
     task_id = request.args.get('task_id')
 
-    if user_id+task_id in tasks.keys():
+    if user_id and task_id and (user_id + str(task_id)) in tasks:
 
         status = tasks[user_id + str(task_id)][0]
 
-        task_data = tasks[user_id + str(task_id)]
-        if task_data:
-            flashcards_i = json.loads(task_data[1])['terms']
-
+        flashcards_i = json.loads(outcome)['terms']
         flashcards = "["
         for i in flashcards_i:
             add =  str('{front: "i["term"]", back: "i["answer"]"},').replace('i["term"]', i['term']).replace('i["answer"]', i['answer'])
@@ -123,8 +119,11 @@ def show_result():
 
 
 
-        return render_template('result.html', placeholder = flashcards)
-    return "The thing is not in tasks/not ready"
+
+        if status == 'completed':
+
+            return render_template('result.html', placeholder = flashcards)
+    return redirect(url_for('home'))
 
 if __name__ == '__main__':
 

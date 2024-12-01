@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Loading</title>
-  <meta http-equiv="Cache-control" content="public">
-
   <link rel="icon" type="image/x-icon" href="C:\Users\nirva\OneDrive\srry\static\images\snapstudy_favicon_transparent.ico">
 
 <!-- <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css"> -->
@@ -285,30 +283,26 @@
     document.addEventListener("DOMContentLoaded", function() {
 
         
-    const taskId = "{{ taskId }}";
+    const taskId = "{{ task_id }}";
 
     function checkStatus() {
-        console.log("Checking task status...");
         fetch(`/check_status?task_id=${taskId}`)
             .then(response => response.json())
             .then(data => {
-                console.log("API Response:", data);
-                if (data.status === "completed") {
-                    console.log("Redirecting to /show_result...");
-                    window.location.replace(`/show_result?task_id=${taskId}`);
-                } else {
-                    console.log("Task status is not completed yet.");
+                if (data.status === 'completed') {
+                    // Redirect to the home route
+                    window.location.href = `/show_result?task_id=${taskId}`;
+                } else if (data.redirect) {
+                    // Handle other redirects if specified
+                    window.location.href = data.redirect;
+                } else if (data.status) {
+                    console.log("Task Status:", data.status);
                 }
             })
-            .catch(error => {
-                console.error("Error fetching task status:", error);
-                alert("An error occurred while checking the task status.");
-            });
+            .catch(error => console.error("Error checking status:", error));
     }
 
-    setInterval(checkStatus, 2000); 
-
-
+    setInterval(checkStatus, 1000);
 });
 </script>
 
@@ -332,6 +326,5 @@
             </div>
         </div>
     </div>
-
 </body>
 </html>
