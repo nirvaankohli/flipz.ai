@@ -105,25 +105,26 @@ def show_result():
     user_id = request.cookies.get('user_id')
     task_id = request.args.get('task_id')
 
-    if user_id and task_id and (user_id + str(task_id)) in tasks:
+    
 
-        status = tasks[user_id + str(task_id)][0]
+    status = tasks[user_id + str(task_id)][0]
 
-        flashcards_i = json.loads(outcome)['terms']
-        flashcards = "["
-        for i in flashcards_i:
-            add =  str('{front: "i["term"]", back: "i["answer"]"},').replace('i["term"]', i['term']).replace('i["answer"]', i['answer'])
-            flashcards += add
-        flashcards = flashcards[:-1]
-        flashcards += "]"
-
-
+    flashcards_i = json.loads(outcome)['terms']
+    flashcards = "["
+    for i in flashcards_i:
+         add =  str('{front: "i["term"]", back: "i["answer"]"},').replace('i["term"]', i['term']).replace('i["answer"]', i['answer'])
+         flashcards += add
+    flashcards = flashcards[:-1]
+    flashcards += "]"
 
 
-        if status == 'completed':
 
-            return render_template('result.html', placeholder = flashcards)
-    return "f"
+
+    if status == 'completed':
+
+        return render_template('result.html', placeholder = flashcards)
+    else:
+        return "f"
 
 if __name__ == '__main__':
 
