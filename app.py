@@ -5,7 +5,7 @@ import CardinalisAPI
 import json
 import os
 import time
-from collections import defaultdict
+from flask_caching import Cache
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,25 +15,28 @@ key = os.getenv("OPENAI_API_KEY")
 app = Flask(__name__)
 app.secret_key = key
 
-# Thread-safe storage for task statuses
-tasks = defaultdict(dict)
-lock = threading.Lock()
+# Flask-Caching Configuration
+app.config['CACHE_TYPE'] = 'SimpleCache'
+app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # Cache timeout in seconds
+cache = Cache(app)
 
+user_id = None
 api = CardinalisAPI.API(key)
+
+form_data = {}
+outcome = 'None'
+result = 'None'
+task_status = "Not Started"
 
 def api_call(topic, level, user_id, task_id):
     try:
-        with lock:
-            tasks[user_id][task_id] = {'status': 'in progress', 'result': None}
+        cache.set(user_id + str(task_id), ['in progress', 'None'])
 
-        # Simulate API call
         result = api.flashcards(topic, level)
-        
-        with lock:
-            tasks[user_id][task_id] = {'status': 'completed', 'result': result}
+        cache.set(user_id + str(task_id), ['completed', result])
+
     except Exception as e:
-        with lock:
-            tasks[user_id][task_id] = {'status': 'failed', 'result': str(e)}
+        cache.set(user_id + str(task_id), ['failed', str(e)])
 
 @app.route('/favicon.ico')
 def favicon():
@@ -42,24 +45,38 @@ def favicon():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    global user_id
     if request.method == 'POST':
-        topic = request.form['topic']
-        level = request.form['level']
-        user_id = request.cookies.get('user_id') or str(uuid.uuid4())
-        task_id = str(uuid.uuid4())
-
-        # Start the API call in a background thread
-        threading.Thread(target=api_call, args=(topic, level, user_id, task_id)).start()
-
-        return redirect(url_for('loading_cards', task_id=task_id))
+        import secrets
+        form_data = {}
+        form_data['topic'] = request.form['topic']
+        form_data['level'] = request.form['level']
+        form_data['user_id'] = request.cookies.get('user_id')
+        form_data['task_id'] = secrets.token_hex(5)
+        
+        # Start the API call in a background thread with arguments
+        background_thread = threading.Thread(target=api_call, args=(form_data['topic'], form_data['level'], form_data['user_id'], form_data['task_id']))
+        background_thread.start()
+        
+        return redirect(url_for('loading_cards', task_id=form_data['task_id']))
+        
     else:
-        user_id = request.cookies.get('user_id') or str(uuid.uuid4())
+        user_id = request.cookies.get('user_id')
+        if not user_id:
+            user_id = str(uuid.uuid4())
+        
         response = make_response(render_template('home.html'))
-        response.set_cookie('user_id', user_id, max_age=60*60*24*30*12)
+        response.set_cookie('user_id', user_id, max_age=60*60*24*30*12)  
         return response
 
-@app.route('/loading_cards', methods=['GET'])
+@app.route('/loading_cards', methods=['GET', 'POST'])
 def loading_cards():
+    global user_id
+    if user_id is None:
+        user_id = request.cookies.get('user_id')
+        if not user_id:
+            user_id = str(uuid.uuid4())
+
     task_id = request.args.get('task_id')
     return render_template('generation.html', task_id=task_id)
 
@@ -67,46 +84,37 @@ def loading_cards():
 def check_status():
     user_id = request.cookies.get('user_id')
     task_id = request.args.get('task_id')
-
-    with lock:
-        task_info = tasks.get(user_id, {}).get(task_id)
-
-    if task_info:
-        return jsonify(task_info)
-    else:
-        return jsonify({"status": "unknown", "result": None}), 404
+    task_key = user_id + str(task_id) if user_id and task_id else None
+    if task_key:
+        task_data = cache.get(task_key)
+        if task_data:
+            status, result = task_data
+            return jsonify({"status": status, "result": result})
+    
+    return jsonify({"status": "unknown"})
 
 @app.route('/show_result', methods=['GET'])
 def show_result():
     user_id = request.cookies.get('user_id')
     task_id = request.args.get('task_id')
+    task_key = user_id + str(task_id) if user_id and task_id else None
 
-    with lock:
-        task_info = tasks.get(user_id, {}).get(task_id)
+    if task_key:
+        task_data = cache.get(task_key)
+        if task_data:
+            status, result = task_data
+            if status == 'completed':
+                flashcards_i = json.loads(result)['terms']
 
-    if not task_info:
-        return f"Task {task_id} not found for user {user_id}"
+                flashcards = "["
 
-    status = task_info['status']
-    result = task_info['result']
-
-    if status == 'completed':
-        try:
-            
-            flashcards_i = json.loads(result)['terms']
-            flashcards = "["
-            print(flashcards_i)
-            for i in flashcards_i:
-                add =  str('{front: "i["term"]", back: "i["answer"]"},').replace('i["term"]', i['term']).replace('i["answer"]', i['answer'])
-                flashcards += add
-            flashcards = flashcards[:-1]
-            flashcards += "]"
-            print(flashcards)
-            return render_template('result.html', placeholder=flashcards)
-        except Exception as e:
-            return f"Error processing result: {str(e)}"
-    else:
-        return f"Task is still {status}. Please check back later."
+                for i in flashcards_i:
+                    add =  str('{front: "i["term"]", back: "i["answer"]"},').replace('i["term"]', i['term']).replace('i["answer"]', i['answer'])
+                    flashcards += add
+                flashcards = flashcards[:-1]
+                flashcards += "]"
+                return render_template('result.html', placeholder=flashcards)
+    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True, threaded=True)
