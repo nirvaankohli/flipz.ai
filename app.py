@@ -84,20 +84,20 @@ def loading_cards():
 def check_status():
     user_id = request.cookies.get('user_id')
     task_id = request.args.get('task_id')
-    task_key = user_id + str(task_id) if user_id and task_id else None
-    if task_key:
-        task_data = cache.get(task_key)
-        if task_data:
-            status, result = task_data
-            return jsonify({"status": status, "result": result})
+    task_key = user_id + str(task_id)
+
+    task_data = cache.get(task_key)
+
+    status, result = task_data
+    return jsonify({"status": status, "result": result})
     
-    return jsonify({"status": "unknown"})
+
 
 @app.route('/show_result', methods=['GET'])
 def show_result():
     user_id = request.cookies.get('user_id')
     task_id = request.args.get('task_id')
-    task_key = user_id + str(task_id) if user_id and task_id else None
+    task_key = user_id + str(task_id)
 
     if task_key:
         task_data = cache.get(task_key)
@@ -114,7 +114,12 @@ def show_result():
                 flashcards = flashcards[:-1]
                 flashcards += "]"
                 return render_template('result.html', placeholder=flashcards)
-    return redirect(url_for('home'))
+            else:
+                return "status is not complete"
+            
+        else:
+            return "Task Data has not been Found from Cache"
+    return redirect(url_for("home"))
 
 if __name__ == '__main__':
     app.run(debug=True, threaded=True)
