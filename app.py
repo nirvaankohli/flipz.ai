@@ -5,6 +5,7 @@ import CardinalisAPI
 import json
 import os
 import time
+import logging
 from flask_caching import Cache
 from dotenv import load_dotenv
 
@@ -20,8 +21,9 @@ app.config['CACHE_TYPE'] = 'SimpleCache'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # Cache timeout in seconds
 cache = Cache(app)
 
-user_id = None
 api = CardinalisAPI.API(key)
+
+logging.basicConfig(level=logging.DEBUG)
 
 form_data = {}
 outcome = 'None'
@@ -45,14 +47,14 @@ def favicon():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    global user_id
     if request.method == 'POST':
         import secrets
-        form_data = {}
-        form_data['topic'] = request.form['topic']
-        form_data['level'] = request.form['level']
-        form_data['user_id'] = request.cookies.get('user_id')
-        form_data['task_id'] = secrets.token_hex(5)
+        form_data = {
+            'topic': request.form['topic'],
+            'level': request.form['level'],
+            'user_id': request.cookies.get('user_id'),
+            'task_id': secrets.token_hex(5)
+        }
         
         # Start the API call in a background thread with arguments
         background_thread = threading.Thread(target=api_call, args=(form_data['topic'], form_data['level'], form_data['user_id'], form_data['task_id']))
@@ -64,18 +66,15 @@ def home():
         user_id = request.cookies.get('user_id')
         if not user_id:
             user_id = str(uuid.uuid4())
-        
         response = make_response(render_template('home.html'))
         response.set_cookie('user_id', user_id, max_age=60*60*24*30*12)  
         return response
 
 @app.route('/loading_cards', methods=['GET', 'POST'])
 def loading_cards():
-    global user_id
-    if user_id is None:
-        user_id = request.cookies.get('user_id')
-        if not user_id:
-            user_id = str(uuid.uuid4())
+    user_id = request.cookies.get('user_id')
+    if not user_id:
+        user_id = str(uuid.uuid4())
 
     task_id = request.args.get('task_id')
     return render_template('generation.html', task_id=task_id)
@@ -85,19 +84,24 @@ def check_status():
     user_id = request.cookies.get('user_id')
     task_id = request.args.get('task_id')
     task_key = user_id + str(task_id)
+    
+    logging.debug(f"Checking status for user_id: {user_id}, task_id: {task_id}")
 
     task_data = cache.get(task_key)
 
-    status, result = task_data
-    return jsonify({"status": status, "result": result})
-    
-
+    if task_data:
+        status, result = task_data
+        return jsonify({"status": status, "result": result})
+    else:
+        return jsonify({"status": "not found", "result": ""})
 
 @app.route('/show_result', methods=['GET'])
 def show_result():
     user_id = request.cookies.get('user_id')
     task_id = request.args.get('task_id')
     task_key = user_id + str(task_id)
+
+    logging.debug(f"Showing result for user_id: {user_id}, task_id: {task_id}")
 
     if task_key:
         task_data = cache.get(task_key)
@@ -116,7 +120,6 @@ def show_result():
                 return render_template('result.html', placeholder=flashcards)
             else:
                 return "status is not complete"
-            
         else:
             return "Task Data has not been Found from Cache"
     return redirect(url_for("home"))
