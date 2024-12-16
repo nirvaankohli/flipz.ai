@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory, make_response
+import threading
 import uuid
+import CardinalisAPI
 import json
 import os
 from flask_caching import Cache
-from celery import Celery
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,29 +15,24 @@ app = Flask(__name__)
 app.secret_key = key
 
 # Flask-Caching Configuration
-app.config['CACHE_TYPE'] = 'RedisCache'
-app.config['CACHE_REDIS_URL'] = 'redis://localhost:6379/0'
+app.config['CACHE_TYPE'] = 'SimpleCache'
+app.config['CACHE_DEFAULT_TIMEOUT'] = 300  # Cache expiration in seconds
 cache = Cache(app)
 
-# Celery Configuration
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
-app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
+api = CardinalisAPI.API(key)
 
-@celery.task
-def api_call(task_id, topic, level, user_id):
+def api_call(topic, level, user_id, task_id):
     """Background API call to generate flashcards."""
     task_key = f"task_{task_id}"
     try:
         # Mark task as 'in progress'
         cache.set(task_key, {'status': 'in progress', 'result': None})
-
-        # Simulate API call (replace with actual API logic)
-        result = {"terms": [{"term": "Example Term", "answer": "Example Answer"}]}
-
+        
+        # Simulate API call
+        result = api.flashcards(topic, level)
+        
         # Mark task as 'completed'
-        cache.set(task_key, {'status': 'completed', 'result': json.dumps(result)})
+        cache.set(task_key, {'status': 'completed', 'result': result})
     except Exception as e:
         # Mark task as 'failed'
         cache.set(task_key, {'status': 'failed', 'result': str(e)})
@@ -54,12 +50,12 @@ def home():
         task_id = uuid.uuid4().hex
         user_id = request.cookies.get('user_id', str(uuid.uuid4()))
 
-        # Start the API call in a background task
-        api_call.delay(task_id, topic, level, user_id)
-
+        # Start the API call in a background thread
+        threading.Thread(target=api_call, args=(topic, level, user_id, task_id)).start()
+        
         # Store the task ID in the cache for the current user
         cache.set(f"user_task_{user_id}", task_id)
-
+        
         # Redirect to loading page
         return redirect(url_for('loading_cards'))
     else:
