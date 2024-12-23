@@ -45,7 +45,7 @@
         }
         .card-face {
             position: absolute;
-            width: 100%;
+            width: 38.75vw;
             height: 100%;
             display: flex;
             align-items: center;
@@ -164,19 +164,23 @@
         }
 
         @media (min-width: 1500px) and (max-width: 1920px) {
-            .card-face {
+            .card-face.front {
                 font-size: 2vw;
             }
         }
         @media (min-width: 800px) and (max-width: 1499px) {
-            .card-face {
+            .card-face.front {
                 font-size: 3vw;
             }
         }
         @media (min-width: 0px) and (max-width: 799px) {
-            .card-face {
+            .card-face.front {
                 font-size:4vw;
             }
+        }
+        .card-face.back {
+            font-size: clamp(5px, 1.25vw, 3vw); /* Minimum: 12px, Relative: 5vw, Maximum: 24px */
+    
         }
 
         @keyframes fadeIn {
@@ -218,6 +222,7 @@
         </div>
     </div>
     <script>
+
         const flashcards = {{ placeholder | safe }};
 
         let currentIndex = 0;
@@ -240,6 +245,8 @@
             // Disable buttons when at start or end
             document.getElementById("prevBtn").disabled = currentIndex === 0;
             document.getElementById("nextBtn").disabled = currentIndex === flashcards.length - 1;
+
+
         }
 
         function updateProgressBar() {
@@ -260,6 +267,7 @@
             if (currentIndex < flashcards.length - 1) {
                 currentIndex++;
                 updateFlashcard();
+                
             }
         });
 
