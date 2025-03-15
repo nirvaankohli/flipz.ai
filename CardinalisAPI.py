@@ -58,7 +58,7 @@ class API:
         completion = self.client.chat.completions.create(
         model="gpt-4o-2024-08-06",
         messages=[
-        {"role": "system", "content": f"""You are a assistant for a {grade_level_1} level student and help them by generating flashcards on a given topic. Topic is provided below. Generate flash cards(12+) in json format."""},
+        {"role": "system", "content": f"""You are a assistant for a {grade_level_1} level student and help them by generating flashcards on a given topic. Topic is provided below. Generate flash cards(12+) in json format. Make sure to tailor exactly to the a {grade_level_1} level student. Use slightly more sophisticated words than a normal {grade_level_1} level student would write."""},
 
         {"role": "user", "content": f"Topic - {topic}"},
         ], response_format= {
