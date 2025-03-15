@@ -53,58 +53,53 @@
                 color: #FF5F1F;
             }
             .navbar {
-                opacity: 1;
-                position: fixed;
-                top: 2%; left: 50%; transform: translateX(-50%);
-                overflow: hidden;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 20px;
-                background-color: #FF5F1F;
-                border-radius: 50px;
-                padding: 10px 20px;
-                box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-                z-index: 1000;
+            position: fixed;
+            top: 2%; left: 50%; transform: translateX(-50%);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10%;
+            background-color: #FF5F1F;
+            border-radius: 50px;
+            padding: 10px 20px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            height: fit-content;
         }
         @media (min-width: 800px) and (max-width: 1920px) {
             .navbar {
-                width: 480px;
+                width: 600px;
             }
             .navbar a {
                 padding: 10px 15px;
-                font-size: 1.2em;
+                font-size: .6vw;
             }
         }
         @media (min-width: 480px) and (max-width: 799px) {
             .navbar {
-                width: 320px;
+                width: 350px;
             }
             .navbar a {
                 padding: 8px 10px;
-                font-size: .95em;
+                font-size: .6vw;
             }
         }
         @media (min-width: 0px) and (max-width: 479px) {
             .navbar {
-                width: 250;
+                width: 300px;
             }
             .navbar a {
                 padding: 8px 10px;
-                font-size: .7em;
+                font-size: .6vw;
             }
-        }
-        .navbar {
-
-            animation: moveUp 1.5s ease-in-out forwards;
-            animation-delay: .2s;
         }
         .navbar a {
             transition: all 1s ease-out;
             color: white;
             text-decoration: none;
             border-radius: 50px;
-            font-size: calc(.5vw + 1.25vh);
+            font-size: calc(.9vw + .6vh);
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
@@ -114,28 +109,28 @@
             color: #FF5F1F;
          position: relative; position: relative; background-color: white; color: #FF5F1F;}
 
-        .navbar a.selected::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 1.5em;
-            height: 1.5em;
-            background-color: white;
-            border-radius: 50%;
-            z-index: -1;
-        }
+.navbar a.selected::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1.5em;
+    height: 1.5em;
+    background-color: white;
+    border-radius: 50%;
+    z-index: -1;
+}
 
-                .navbar a:hover {
-                    transition: all 1s ease-out;
-                    background-color: rgba(255, 255, 255, 0.3);
-                    transform: scale(1.1);
-                transition: all 1s ease-out; transform: scale(1.1); }
+        .navbar a:hover {
+            transition: all 1s ease-out;
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+         transition: all 1s ease-out; transform: scale(1.1); }
 
-        .navbar a.selected:hover {
-            background-color: white !important;
-        }
+.navbar a.selected:hover {
+    background-color: white !important;
+}
         
 
     
@@ -311,8 +306,8 @@
     <div class="navbar">
         <a href="#home" class="smooth-scroll">Home</a>
         <a href="#try-it" class="smooth-scroll selected">Try It</a>
-        <a href="#stats" class="smooth-scroll">Stats</a>
-        <a href="#about-us" class="smooth-scroll">About Us</a>
+        <a href="#why-us" class="smooth-scroll">Why Us?</a>
+
     </div>
     <div class="container">
         <div class="loader">
